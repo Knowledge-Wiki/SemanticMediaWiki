@@ -294,7 +294,7 @@ class DataRebuilder {
 		$this->entityRebuildDispatcher = $this->store->refreshData(
 			$this->start,
 			1,
-			$this->options->has( 'ns' ) ? [ constant( $this->options->get( 'ns' ) ) ] : []
+			$this->options->has( 'ns' ) ? [ constant( $this->options->get( 'ns' ) ) ] : false
 		);
 
 		$this->entityRebuildDispatcher->setDispatchRangeLimit( 1 );
