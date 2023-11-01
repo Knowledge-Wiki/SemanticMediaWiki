@@ -114,6 +114,7 @@ class rebuildData extends \Maintenance {
 		$this->addOption( 'no-cache', 'Sets the `wgMainCacheType` to none while running the script', false );
 		$this->addOption( 'debug', 'Sets global variables to support debug ouput while running the script', false );
 		$this->addOption( 'quiet', 'Do not give any output', false );
+		$this->addOption( 'ns', 'Restrict to one namespace Example: --ns="NS_MAIN"', false, true );
 	}
 
 	/**
