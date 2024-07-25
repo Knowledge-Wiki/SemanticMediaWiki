@@ -17,6 +17,7 @@ use SMW\Tests\PHPUnitCompat;
  * @since 2.4
  *
  * @author mwjames
+ * @author thomas-topway-it
  */
 class SpecificationLookupTest extends \PHPUnit_Framework_TestCase {
 
@@ -55,6 +56,65 @@ class SpecificationLookupTest extends \PHPUnit_Framework_TestCase {
 			SpecificationLookup::class,
 			new SpecificationLookup( $this->store, $this->entityCache )
 		);
+	}
+
+	public function testTryOutFalldownAndInverse() {
+		$property = $this->dataItemFactory->newDIProperty( '_PDESC' );
+		$subject = $property->getDiWikiPage();
+
+		$this->monolingualTextLookup->expects( $this->any() )
+			->method( 'newDataValue' )
+			->with(
+				$this->equalTo( $subject ),
+				$this->equalTo( $property ),
+				$this->anything() )
+
+			->will(
+				$this->returnCallback( static function() {
+   					$args = func_get_args();
+    				switch ( $args[2] ) {
+    					case 'de': return 'de-desc';
+    					case 'de-formal': return 'de-formal-desc';
+    					case 'en': return 'en-desc';
+    				}
+				} )
+			 );
+			 
+		$instance = new SpecificationLookup(
+			$this->store,
+			$this->entityCache
+		);
+
+		// @see https://github.com/SemanticMediaWiki/SemanticMediaWiki/issues/5342
+		$monolingualTextLookup = $this->monolingualTextLookup;
+
+		$languageCode = 'de-formal';
+
+		// #1 will return languageFalldown
+		$this->assertEquals(
+			'de-desc',
+			$instance->tryOutFalldownAndInverse( $monolingualTextLookup, $subject, $property, $languageCode )
+		);
+		
+
+		$languageCode = 'de';
+
+		// #2 will return the first existing FallbackInverse
+		// (de-formal from de)
+
+		$this->assertEquals(
+			'de-formal-desc',
+			$instance->tryOutFalldownAndInverse( $monolingualTextLookup, $subject, $property, $languageCode )
+		);
+
+		$languageCode = 'en';
+
+		// #3 will return null
+		$this->assertEquals(
+			null,
+			$instance->tryOutFalldownAndInverse( $monolingualTextLookup, $subject, $property, $languageCode )
+		);
+
 	}
 
 	public function testGetSpecification() {
