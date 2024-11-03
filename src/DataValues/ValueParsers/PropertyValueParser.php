@@ -115,6 +115,15 @@ class PropertyValueParser implements ValueParser {
 		return $this->getNormalizedValueFrom( $userValue );
 	}
 
+	private function isValidPropertyName( $value ) {
+		if ( strpos( $value, '.' ) === false ) {
+			return true;
+		}
+		// determine if one or more dot belong to the property name
+		$title = \Title::newFromText( $value, SMW_NS_PROPERTY );
+		return $title && $title->isKnown();
+	}
+
 	private function hasValidCharacters( $value ) {
 		if ( trim( $value ) === '' ) {
 			$this->errors[] = [ 'smw_emptystring' ];
@@ -150,7 +159,7 @@ class PropertyValueParser implements ValueParser {
 		}
 
 		// #676, only on a query context allow Foo.Bar
-		if ( $invalidCharacter === '' && !$this->isQueryContext && strpos( $value, '.' ) !== false ) {
+		if ( $invalidCharacter === '' && !$this->isQueryContext && !$this->isValidPropertyName( $value ) ) {
 			$this->errors[] = [ 'smw-datavalue-property-invalid-chain', $value ];
 			return false;
 		}
