@@ -254,6 +254,7 @@ class Hooks {
 			'LinksUpdateComplete' => [ $this, 'onLinksUpdateComplete' ],
 			'FileUpload' => [ $this, 'onFileUpload' ],
 			'MaintenanceUpdateAddParams' => [ $this, 'onMaintenanceUpdateAddParams' ],
+			'UserGetDefaultOptions' => [ $this, 'onUserGetDefaultOptions' ],
 
 			'ResourceLoaderGetConfigVars' => [ $this, 'onResourceLoaderGetConfigVars' ],
 			'GetPreferences' => [ $this, 'onGetPreferences' ],
@@ -888,6 +889,12 @@ class Hooks {
 		);
 
 		return true;
+	}
+
+	// @see NamespaceManager -> addExtraNamespaceSettings
+	public static function onUserGetDefaultOptions( &$defaultOptions ) {
+			$defaultOptions['searchNs' . SMW_NS_PROPERTY] = true;
+			$defaultOptions['searchNs' . SMW_NS_CONCEPT] = true;
 	}
 
 	/**
